@@ -1,4 +1,4 @@
-# mandelbrot_renderer
+# Mandelbrot Renderer
 
 This Rust program renders mandelbrot images
 
@@ -50,7 +50,7 @@ Options:
 
 ## Future plans
 
-- Multithreaded rendering
+- Multithreaded rendering / GPU rendering
 - Optimized rendering
 - Zoomed renders
 - More color modes
