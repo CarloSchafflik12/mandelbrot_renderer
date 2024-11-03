@@ -58,7 +58,7 @@ fn run_binary(config: &Config) {
     let mut canvas = Canvas::new(w, h);
     let coord = Coord::new(Pixel::new(w / 2, h / 2), 1.5, 1.5, w);
 
-    println!("Rendering rows ...");
+    println!("Rendering columns ...");
     let bar = ProgressBar::new(w as u64);
     let max_iter = config.iterations_max;
     for x in 0..w {
@@ -85,7 +85,7 @@ fn run_colored(config: &Config) {
     let mut canvas = Canvas::new(w, h);
     let coord = Coord::new(Pixel::new(w / 2, h / 2), 1.5, 1.5, w);
 
-    println!("Rendering rows ...");
+    println!("Rendering columns ...");
     let bar = ProgressBar::new(w as u64);
     let max_iter = config.iterations_max;
     for x in 0..w {
