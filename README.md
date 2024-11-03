@@ -44,6 +44,10 @@ Options:
 
 ## Changelog
 
+### 1.0.1
+
+- Fixed wrong render information
+
 ### 1.0.0
 
 - First version
