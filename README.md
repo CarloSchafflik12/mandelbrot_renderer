@@ -62,7 +62,7 @@ Options:
 
 ## Future plans
 
-- Multithreaded rendering / GPU rendering
+- GPU rendering
 - Optimized rendering
 - Zoomed renders
 - More color modes
