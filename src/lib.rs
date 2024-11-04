@@ -20,8 +20,8 @@ pub struct Config {
     #[arg(value_enum)]
     mode: Mode,
 
-    /// Number of threads
-    #[arg(short, long, value_parser = threads_parser, default_value_t = 1)]
+    /// Number of threads (0 -> auto)
+    #[arg(short, long, value_parser = threads_parser, default_value_t = 0)]
     threads: usize,
 
     /// Path of output image
@@ -67,7 +67,10 @@ pub fn run(config: &Config) {
 
     let sh_buffer = Arc::new(Mutex::new(vec![0u16; w as usize * h as usize]));
     let max_iter = config.iterations_max;
-    let threads = config.threads;
+    let threads = match config.threads {
+        0 => get_auto_threads(),
+        n => n,
+    };
     let (tx, rx) = mpsc::channel();
 
     let mut handles = Vec::<thread::JoinHandle<()>>::with_capacity(threads);
@@ -92,14 +95,14 @@ pub fn run(config: &Config) {
         handles.push(handle);
     }
 
-    println!("Calculating columns ...");
+    println!("\nCalculating columns with {threads} threads ...");
     let bar = ProgressBar::new(w as u64);
     for _ in rx.iter().take(w as usize) {
         bar.inc(1);
     }
     bar.finish();
 
-    println!("Generating image ...");
+    println!("\n\nGenerating image ...");
     let bar = ProgressBar::new(w as u64);
     let buffer = sh_buffer.lock().unwrap();
     for x in 0..w {
@@ -125,8 +128,16 @@ pub fn run(config: &Config) {
     }
     bar.finish();
 
-    println!("Writing image to disk ...");
+    print!("\n\nWriting image to disk ...");
     canvas.save(config.path.as_str());
 
-    println!("Done!\n");
+    print!("\rWriting image to disk -> Done!\n");
+}
+
+fn get_auto_threads() -> usize {
+    let threads: usize = match thread::available_parallelism() {
+        Ok(n) => n.get(),
+        Err(_) => 1,
+    };
+    threads
 }
