@@ -26,6 +26,8 @@ Arguments:
   <MODE>  Render mode [possible values: binary, colored]
 
 Options:
+  -t, --threads <THREADS>
+          Number of threads (0 -> auto) [default: 0]
       --path <PATH>
           Path of output image [default: out.png]
   -i, --iterations-max <ITERATIONS_MAX>
@@ -43,6 +45,12 @@ Options:
 ```
 
 ## Changelog
+
+### 1.1.0
+
+- Added multithreading
+- Number of threads can be set with the -t or --threads argument (default: 0 -> auto)
+- Changed CLI output
 
 ### 1.0.1
 
