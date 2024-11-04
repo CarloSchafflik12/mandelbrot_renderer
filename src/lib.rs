@@ -81,8 +81,7 @@ fn run_binary(config: &Config) {
     canvas.save(config.path.as_str());
 }
 
-const THREADS: usize = 200;
-const COL_PER_THREADS: usize = 375; // res / threads
+const THREADS: usize = 23;
 
 fn run_colored(config: &Config) {
     let w = config.res;
@@ -101,7 +100,7 @@ fn run_colored(config: &Config) {
         let tx = tx.clone();
         let handle = thread::spawn(move || {
             let mut lc_buffer = vec![0u16; h as usize];
-            for x in (COL_PER_THREADS * thr_index)..(COL_PER_THREADS * (thr_index + 1)) {
+            for x in (thr_index..w as usize).step_by(THREADS) {
                 for y in 0..h {
                     let p = coord.px2cartesian(Pixel::new(x as u32, y as u32));
                     let iterations = mandelbrot_kernel::mandelbrot(p.0 - 0.75, p.1, max_iter);
