@@ -1,6 +1,6 @@
 use super::Complex;
 
-pub fn mandelbrot(c_re: f64, c_im: f64, max_iterations: u32) -> u32 {
+pub fn mandelbrot(c_re: f64, c_im: f64, max_iterations: u16) -> u16 {
     let c = Complex::new(c_re, c_im);
     let mut z = Complex::new(0.0, 0.0);
     let mut iterations = max_iterations;

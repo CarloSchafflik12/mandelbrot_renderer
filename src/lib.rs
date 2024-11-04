@@ -26,7 +26,7 @@ pub struct Config {
 
     /// Number of max iterations per pixel
     #[arg(short, long, default_value_t = 100)]
-    iterations_max: u32,
+    iterations_max: u16,
 
     /// Image resolution
     #[arg(short, long, default_value_t = 2048)]
@@ -91,7 +91,7 @@ fn run_colored(config: &Config) {
     let mut canvas = Canvas::new(w, h);
     let coord = Coord::new(Pixel::new(w / 2, h / 2), 1.5, 1.5, w);
 
-    let sh_buffer = Arc::new(Mutex::new(vec![0u32; (w * h) as usize]));
+    let sh_buffer = Arc::new(Mutex::new(vec![0u16; (w * h) as usize]));
     let max_iter = config.iterations_max;
     let (tx, rx) = mpsc::channel();
 
@@ -100,7 +100,7 @@ fn run_colored(config: &Config) {
         let sh_buffer = sh_buffer.clone();
         let tx = tx.clone();
         let handle = thread::spawn(move || {
-            let mut lc_buffer = Vec::<u32>::with_capacity(COL_PER_THREADS * w as usize);
+            let mut lc_buffer = Vec::<u16>::with_capacity(COL_PER_THREADS * w as usize);
             for x in (COL_PER_THREADS * thr_index)..(COL_PER_THREADS * (thr_index + 1)) {
                 for y in 0..h {
                     let p = coord.px2cartesian(Pixel::new(x as u32, y as u32));
@@ -142,7 +142,7 @@ fn run_colored(config: &Config) {
                     x,
                     y,
                     mandelbrot_color::get_rgb(
-                        iterations * config.color_frequency + config.color_offset,
+                        iterations as u32 * config.color_frequency + config.color_offset,
                     ),
                 );
             }
