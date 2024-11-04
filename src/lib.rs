@@ -59,13 +59,6 @@ enum Mode {
 }
 
 pub fn run(config: &Config) {
-    match config.mode {
-        Mode::Binary => run_binary(config),
-        Mode::Colored => run_colored(config),
-    }
-}
-
-fn run_binary(config: &Config) {
     let w = config.res;
     let h = config.res;
 
@@ -106,7 +99,7 @@ fn run_binary(config: &Config) {
     }
     bar.finish();
 
-    println!("Generating image ..."); // TODO: maybe extra thread for writing columns that are done
+    println!("Generating image ...");
     let bar = ProgressBar::new(w as u64);
     let buffer = sh_buffer.lock().unwrap();
     for x in 0..w {
@@ -115,76 +108,17 @@ fn run_binary(config: &Config) {
             if iterations == max_iter {
                 canvas.img_buffer.put_pixel(x, y, Rgb([0, 0, 0]));
             } else {
-                canvas.img_buffer.put_pixel(x, y, Rgb([255, 255, 255]));
-            }
-        }
-        bar.inc(1);
-    }
-    bar.finish();
-
-    println!("Writing image to disk ...");
-    canvas.save(config.path.as_str());
-
-    println!("Done!\n");
-}
-
-fn run_colored(config: &Config) {
-    let w = config.res;
-    let h = config.res;
-
-    let mut canvas = Canvas::new(w, h);
-    let coord = Coord::new(Pixel::new(w / 2, h / 2), 1.5, 1.5, w);
-
-    let sh_buffer = Arc::new(Mutex::new(vec![0u16; w as usize * h as usize]));
-    let max_iter = config.iterations_max;
-    let threads = config.threads;
-    let (tx, rx) = mpsc::channel();
-
-    let mut handles = Vec::<thread::JoinHandle<()>>::with_capacity(threads);
-    for thr_index in 0..threads {
-        let sh_buffer = sh_buffer.clone();
-        let tx = tx.clone();
-        let handle = thread::spawn(move || {
-            let mut lc_buffer = vec![0u16; h as usize];
-            for x in (thr_index..w as usize).step_by(threads) {
-                for y in 0..h {
-                    let p = coord.px2cartesian(Pixel::new(x as u32, y as u32));
-                    let iterations = mandelbrot_kernel::mandelbrot(p.0 - 0.75, p.1, max_iter);
-                    lc_buffer[y as usize] = iterations;
+                if config.mode == Mode::Binary {
+                    canvas.img_buffer.put_pixel(x, y, Rgb([255, 255, 255]));
+                } else {
+                    canvas.img_buffer.put_pixel(
+                        x,
+                        y,
+                        mandelbrot_color::get_rgb(
+                            iterations as u32 * config.color_frequency + config.color_offset,
+                        ),
+                    );
                 }
-                let mut gl_buffer = sh_buffer.lock().unwrap();
-                for n in 0..h {
-                    gl_buffer[x as usize * h as usize + n as usize] = lc_buffer[n as usize];
-                }
-                tx.send(1).unwrap();
-            }
-        });
-        handles.push(handle);
-    }
-
-    println!("Calculating columns ...");
-    let bar = ProgressBar::new(w as u64);
-    for _ in rx.iter().take(w as usize) {
-        bar.inc(1);
-    }
-    bar.finish();
-
-    println!("Generating image ..."); // TODO: maybe extra thread for writing columns that are done
-    let bar = ProgressBar::new(w as u64);
-    let buffer = sh_buffer.lock().unwrap();
-    for x in 0..w {
-        for y in 0..h {
-            let iterations = buffer[(x * h + y) as usize];
-            if iterations == max_iter {
-                canvas.img_buffer.put_pixel(x, y, Rgb([0, 0, 0]));
-            } else {
-                canvas.img_buffer.put_pixel(
-                    x,
-                    y,
-                    mandelbrot_color::get_rgb(
-                        iterations as u32 * config.color_frequency + config.color_offset,
-                    ),
-                );
             }
         }
         bar.inc(1);
