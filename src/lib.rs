@@ -106,10 +106,6 @@ fn run_binary(config: &Config) {
     }
     bar.finish();
 
-    for h in handles.into_iter() {
-        h.join().unwrap();
-    }
-
     println!("Generating image ..."); // TODO: maybe extra thread for writing columns that are done
     let bar = ProgressBar::new(w as u64);
     let buffer = sh_buffer.lock().unwrap();
@@ -119,7 +115,7 @@ fn run_binary(config: &Config) {
             if iterations == max_iter {
                 canvas.img_buffer.put_pixel(x, y, Rgb([0, 0, 0]));
             } else {
-                canvas.img_buffer.put_pixel(x, y, Rgb([0, 0, 0]));
+                canvas.img_buffer.put_pixel(x, y, Rgb([255, 255, 255]));
             }
         }
         bar.inc(1);
@@ -173,10 +169,6 @@ fn run_colored(config: &Config) {
     }
     bar.finish();
 
-    for h in handles.into_iter() {
-        h.join().unwrap();
-    }
-
     println!("Generating image ..."); // TODO: maybe extra thread for writing columns that are done
     let bar = ProgressBar::new(w as u64);
     let buffer = sh_buffer.lock().unwrap();
@@ -204,5 +196,3 @@ fn run_colored(config: &Config) {
 
     println!("Done!\n");
 }
-
-fn spawn_threads() {}
