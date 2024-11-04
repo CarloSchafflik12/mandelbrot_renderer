@@ -1,3 +1,4 @@
+#[derive(Copy, Clone)]
 pub struct Coord {
     center_px: Pixel,
     x_per_px: f64,
@@ -24,6 +25,7 @@ impl Coord {
     }
 }
 
+#[derive(Copy, Clone)]
 pub struct Pixel {
     pub x: u32,
     pub y: u32,
