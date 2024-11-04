@@ -82,7 +82,7 @@ fn run_binary(config: &Config) {
 }
 
 const THREADS: usize = 100;
-const COL_PER_THREADS: usize = 500; // res / threads
+const COL_PER_THREADS: usize = 1000; // res / threads
 
 fn run_colored(config: &Config) {
     let w = config.res;
@@ -91,7 +91,7 @@ fn run_colored(config: &Config) {
     let mut canvas = Canvas::new(w, h);
     let coord = Coord::new(Pixel::new(w / 2, h / 2), 1.5, 1.5, w);
 
-    let sh_buffer = Arc::new(Mutex::new(vec![0u16; (w * h) as usize]));
+    let sh_buffer = Arc::new(Mutex::new(vec![0u16; w as usize * h as usize]));
     let max_iter = config.iterations_max;
     let (tx, rx) = mpsc::channel();
 
