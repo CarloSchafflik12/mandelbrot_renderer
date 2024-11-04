@@ -81,8 +81,8 @@ fn run_binary(config: &Config) {
     canvas.save(config.path.as_str());
 }
 
-const THREADS: usize = 100;
-const COL_PER_THREADS: usize = 1000; // res / threads
+const THREADS: usize = 200;
+const COL_PER_THREADS: usize = 375; // res / threads
 
 fn run_colored(config: &Config) {
     let w = config.res;
@@ -100,19 +100,18 @@ fn run_colored(config: &Config) {
         let sh_buffer = sh_buffer.clone();
         let tx = tx.clone();
         let handle = thread::spawn(move || {
-            let mut lc_buffer = Vec::<u16>::with_capacity(COL_PER_THREADS * w as usize);
+            let mut lc_buffer = vec![0u16; h as usize];
             for x in (COL_PER_THREADS * thr_index)..(COL_PER_THREADS * (thr_index + 1)) {
                 for y in 0..h {
                     let p = coord.px2cartesian(Pixel::new(x as u32, y as u32));
                     let iterations = mandelbrot_kernel::mandelbrot(p.0 - 0.75, p.1, max_iter);
-                    lc_buffer.push(iterations);
+                    lc_buffer[y as usize] = iterations;
+                }
+                let mut gl_buffer = sh_buffer.lock().unwrap();
+                for n in 0..h {
+                    gl_buffer[x as usize * h as usize + n as usize] = lc_buffer[n as usize];
                 }
                 tx.send(1).unwrap();
-            }
-            let offset = COL_PER_THREADS * w as usize * thr_index;
-            let mut gl_buffer = sh_buffer.lock().unwrap();
-            for n in 0..(COL_PER_THREADS * w as usize) {
-                gl_buffer[n + offset] = lc_buffer[n];
             }
         });
         handles.push(handle);
@@ -155,31 +154,4 @@ fn run_colored(config: &Config) {
     canvas.save(config.path.as_str());
 
     println!("Done!\n");
-
-    /*
-    println!("Rendering columns ...");
-    let bar = ProgressBar::new(w as u64);
-    let max_iter = config.iterations_max;
-    for x in 0..w {
-        for y in 0..h {
-            let p = coord.px2cartesian(Pixel::new(x, y));
-            let iterations = mandelbrot_kernel::mandelbrot(p.0 - 0.75, p.1, max_iter);
-            if iterations == max_iter {
-                canvas.img_buffer.put_pixel(x, y, Rgb([0, 0, 0]));
-            } else {
-                canvas.img_buffer.put_pixel(
-                    x,
-                    y,
-                    mandelbrot_color::get_rgb(
-                        iterations * config.color_frequency + config.color_offset,
-                    ),
-                );
-            }
-        }
-        bar.inc(1);
-    }
-    bar.finish();
-
-    canvas.save(config.path.as_str());
-    */
 }
