@@ -95,15 +95,25 @@ pub fn run(config: &Config) {
         handles.push(handle);
     }
 
-    println!("\nCalculating columns with {threads} threads ...");
+    let sty = indicatif::ProgressStyle::with_template(
+        "{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos:>7}/{len:7} {percent}%",
+    )
+    .unwrap()
+    .progress_chars("=> ");
+
+    println!("\n[1/2] Calculating columns with {threads} threads ...");
     let bar = ProgressBar::new(w as u64);
+    bar.set_style(sty.clone());
+    bar.enable_steady_tick(std::time::Duration::from_millis(100));
     for _ in rx.iter().take(w as usize) {
         bar.inc(1);
     }
     bar.finish();
 
-    println!("\n\nGenerating image ...");
+    println!("[2/2] Generating image ...");
     let bar = ProgressBar::new(w as u64);
+    bar.set_style(sty.clone());
+    bar.enable_steady_tick(std::time::Duration::from_millis(100));
     let buffer = sh_buffer.lock().unwrap();
     for x in 0..w {
         for y in 0..h {
@@ -128,10 +138,10 @@ pub fn run(config: &Config) {
     }
     bar.finish();
 
-    print!("\n\nWriting image to disk ...");
+    println!("Writing image to disk ...");
     canvas.save(config.path.as_str());
 
-    print!("\rWriting image to disk -> Done!\n");
+    println!("Done!\n");
 }
 
 fn get_auto_threads() -> usize {
