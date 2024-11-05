@@ -3,18 +3,18 @@
 This Rust program renders mandelbrot images
 
 ![Binary mandelbrot](binary.png)
-*Rendered with binary mode*
+*Rendered with:* `mandelbrot_generator binary`
 
 ![Colored mandelbrot](colored.png)
-*Rendered with colored mode*
+*Rendered with:* `mandelbrot_generator colored`
 
 ![Colored mandelbrot with color frequency 4](colored_f4.png)
-*Rendered with colored mode and with color frequency 4*
+*Rendered with:* `mandelbrot_generator colored -f 4`
 
 ![Zoomed mandelbrot at Re = -1.768778833 Im = 0.001738996 with color offset 75 and zoom scale 2500000](zoom_1.png)
 *Rendered with:* `mandelbrot_generator colored -R -1.768778833 -I 0.001738996 -z 2500000 -i 1500 -o 75`
 
-![Zoomed mandelbrot at Re = -0.373974 Im = 0.65977 with and zoom scale 500000](zoom_1.png)
+![Zoomed mandelbrot at Re = -0.373974 Im = 0.65977 with and zoom scale 500000](zoom_2.png)
 *Rendered with:* `mandelbrot_generator colored -R -0.373974 -I 0.65977 -z 500000 -i 1500`
 
 ## Build
