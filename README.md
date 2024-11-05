@@ -8,8 +8,14 @@ This Rust program renders mandelbrot images
 ![Colored mandelbrot](colored.png)
 *Rendered with colored mode*
 
-![Colred mandelbrot with color frequency 4](colored_f4.png)
+![Colored mandelbrot with color frequency 4](colored_f4.png)
 *Rendered with colored mode and with color frequency 4*
+
+![Zoomed mandelbrot at Re = -1.768778833 Im = 0.001738996 with color offset 75 and zoom scale 2500000](zoom_1.png)
+*Rendered with:* `mandelbrot_generator colored -R -1.768778833 -I 0.001738996 -z 2500000 -i 1500 -o 75`
+
+![Zoomed mandelbrot at Re = -0.373974 Im = 0.65977 with and zoom scale 500000](zoom_1.png)
+*Rendered with:* `mandelbrot_generator colored -R -0.373974 -I 0.65977 -z 500000 -i 1500`
 
 ## Build
 
@@ -28,16 +34,22 @@ Arguments:
 Options:
   -t, --threads <THREADS>
           Number of threads (0 -> auto) [default: 0]
-      --path <PATH>
+  -p, --path <PATH>
           Path of output image [default: out.png]
   -i, --iterations-max <ITERATIONS_MAX>
           Number of max iterations per pixel [default: 100]
   -r, --res <RES>
           Image resolution [default: 2048]
-      --color-frequency <COLOR_FREQUENCY>
+  -f, --color-frequency <COLOR_FREQUENCY>
           Color frequency if used in colored render mode [default: 1]
-      --color-offset <COLOR_OFFSET>
+  -o, --color-offset <COLOR_OFFSET>
           Color offset if used in colored render mode [default: 0]
+  -R, --center-re <CENTER_RE>
+          Center real coordinate [default: -0.75]
+  -I, --center-im <CENTER_IM>
+          Center imaginary coordinate [default: 0]
+  -z, --zoom <ZOOM>
+          Render zoom scale [default: 0.67]
   -h, --help
           Print help
   -V, --version
@@ -45,6 +57,13 @@ Options:
 ```
 
 ## Changelog
+
+### 1.2.0
+
+- Added zoomed renders
+- Center coordinates can be set with the -R or --center_re (for real number) and -I or --center_im (for imaginary number) argument
+- The zoom scale can be set with -z or --zoom argument
+- New short arguments for path (-p), color frequency (-f) and color offset (-o)
 
 ### 1.1.0
 
@@ -63,7 +82,7 @@ Options:
 ## Future plans
 
 - [x] Multithreded rendering
+- [x] Zoomed renders
 - [ ] GPU rendering
 - [ ] Optimized rendering
-- [ ] Zoomed renders
 - [ ] More color modes

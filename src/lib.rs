@@ -15,6 +15,7 @@ use std::thread;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
+#[structopt(allow_negative_numbers = true)]
 pub struct Config {
     /// Render mode
     #[arg(value_enum)]
@@ -25,7 +26,7 @@ pub struct Config {
     threads: usize,
 
     /// Path of output image
-    #[arg(long, default_value_t = String::from("out.png"))]
+    #[arg(short, long, default_value_t = String::from("out.png"))]
     path: String,
 
     /// Number of max iterations per pixel
@@ -37,12 +38,24 @@ pub struct Config {
     res: u32,
 
     /// Color frequency if used in colored render mode
-    #[arg(long, default_value_t = 1)]
+    #[arg(short = 'f', long, default_value_t = 1)]
     color_frequency: u32,
 
     /// Color offset if used in colored render mode
-    #[arg(long, default_value_t = 0)]
+    #[arg(short = 'o', long, default_value_t = 0)]
     color_offset: u32,
+
+    /// Center real coordinate
+    #[arg(short = 'R', long, default_value_t = -0.75)]
+    center_re: f64,
+
+    /// Center imaginary coordinate
+    #[arg(short = 'I', long, default_value_t = 0.0)]
+    center_im: f64,
+
+    /// Render zoom scale
+    #[arg(short, long, default_value_t = 0.67)]
+    zoom: f64,
 }
 
 fn threads_parser(s: &str) -> Result<usize, String> {
@@ -62,11 +75,15 @@ pub fn run(config: &Config) {
     let w = config.res;
     let h = config.res;
 
+    let scale_xy = 1.0 / config.zoom;
+
     let mut canvas = Canvas::new(w, h);
-    let coord = Coord::new(Pixel::new(w / 2, h / 2), 1.5, 1.5, w);
+    let coord = Coord::new(Pixel::new(w / 2, h / 2), scale_xy, scale_xy, w);
 
     let sh_buffer = Arc::new(Mutex::new(vec![0u16; w as usize * h as usize]));
     let max_iter = config.iterations_max;
+    let offset_re = config.center_re;
+    let offset_im = config.center_im;
     let threads = match config.threads {
         0 => get_auto_threads(),
         n => n,
@@ -82,7 +99,8 @@ pub fn run(config: &Config) {
             for x in (thr_index..w as usize).step_by(threads) {
                 for y in 0..h {
                     let p = coord.px2cartesian(Pixel::new(x as u32, y as u32));
-                    let iterations = mandelbrot_kernel::mandelbrot(p.0 - 0.75, p.1, max_iter);
+                    let iterations =
+                        mandelbrot_kernel::mandelbrot(p.0 + offset_re, p.1 + offset_im, max_iter);
                     lc_buffer[y as usize] = iterations;
                 }
                 let mut gl_buffer = sh_buffer.lock().unwrap();
